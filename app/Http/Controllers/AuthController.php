@@ -62,37 +62,37 @@ class AuthController extends Controller
 
 
     public function login(Request $request)
-{
-    $request->validate([
-        'identifier' => 'required|string', 
-        'password' => 'required|string',
-    ]);
+    {
+        $request->validate([
+            'identifier' => 'required|string',
+            'password' => 'required|string',
+        ]);
 
-    $user = User::where('email', $request->identifier)
-                ->orWhere('number_phone', $request->identifier)
-                ->first();
+        $user = User::where('email', $request->identifier)
+            ->orWhere('number_phone', $request->identifier)
+            ->first();
 
-    if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Identifiants incorrects.'
+            ], 401);
+        }
+
+        $roleData = null;
+        switch ($user->id_role) {
+            case 2: // Médecin
+                $roleData = Medecin::where('id', $user->id)->first();
+                break;
+            case 3: // Patient
+                $roleData = Patient::where('id_user', $user->id)->first();
+                break;
+        }
+
         return response()->json([
-            'message' => 'Identifiants incorrects.'
-        ], 401);
+            'message' => 'Connexion réussie.',
+            'user' => $user,
+            'role_data' => $roleData,
+        ]);
     }
-
-    $roleData = null;
-    switch ($user->id_role) {
-        case 2: // Médecin
-            $roleData = Medecin::where('id', $user->id)->first();
-            break;
-        case 3: // Patient
-            $roleData = Patient::where('id_user', $user->id)->first();
-            break;
-    }
-
-    return response()->json([
-        'message' => 'Connexion réussie.',
-        'user' => $user,
-        'role_data' => $roleData,
-    ]);
-}
 
 }
