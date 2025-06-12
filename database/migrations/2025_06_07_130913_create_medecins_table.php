@@ -10,18 +10,26 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('medecins', function (Blueprint $table) {
-            $table->unsignedBigInteger('id')->primary();
-            $table->string('license_number');
-            $table->integer('years_of_experience');
-            $table->string('image')->nullable();
-            $table->string('adresse')->nullable();
-            $table->text('description')->nullable();
-            $table->timestamps();
+Schema::create('medecins', function (Blueprint $table) {
+    $table->unsignedBigInteger('id')->primary(); // lié à users
+    $table->string('license_number');
+    $table->integer('years_of_experience');
+    $table->string('image')->nullable();
+    $table->string('adresse')->nullable();
+    $table->text('description')->nullable();
+    
+    // clé étrangère vers spécialités
+    $table->unsignedBigInteger('specialite_id');
+    
+    $table->timestamps();
 
-            $table->foreign('id')->references('id')->on('users')->onDelete('cascade');
-        });
-    }
+    // Foreign key vers users
+    $table->foreign('id')->references('id')->on('users')->onDelete('cascade');
+
+    // Foreign key vers specialites
+    $table->foreign('specialite_id')->references('id')->on('specialites')->onDelete('cascade');
+});
+
 
     /**
      * Reverse the migrations.
