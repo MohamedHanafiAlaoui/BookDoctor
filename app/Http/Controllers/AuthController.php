@@ -54,10 +54,8 @@ class AuthController extends Controller
         }
 
 
-        return response()->json([
-            'message' => 'Utilisateur créé avec succès.',
-            'user' => $user
-        ], 201);
+        return redirect()->route('login')->with('success', 'Votre compte a été créé avec succès. Veuillez vous connecter.');
+
     }
 
 
@@ -73,26 +71,33 @@ class AuthController extends Controller
             ->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'message' => 'Identifiants incorrects.'
-            ], 401);
+            return back()->withErrors(['identifier' => 'Identifiants incorrects.']);
         }
 
-        $roleData = null;
-        switch ($user->id_role) {
-            case 2: // Médecin
-                $roleData = Medecin::where('id', $user->id)->first();
-                break;
-            case 3: // Patient
-                $roleData = Patient::where('id_user', $user->id)->first();
-                break;
-        }
+        auth()->login($user);
 
-        return response()->json([
-            'message' => 'Connexion réussie.',
-            'user' => $user,
-            'role_data' => $roleData,
-        ]);
+        // Redirection selon le rôle
+    return redirect()->route('dashboard.redirect');
+
     }
+
+
+
+        public function redirectBasedOnRole()
+    {
+        $user = auth()->user();
+
+        switch ($user->id_role) {
+            case 1:
+                return redirect()->route('admin.dashboard');
+            case 2:
+                return redirect()->route('medecin.profil.index');
+            case 3:
+                return redirect()->route('patients.profil.index');
+            default:
+                abort(404); // أو return view('errors.404');
+        }
+    }
+
 
 }
