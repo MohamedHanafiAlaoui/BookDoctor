@@ -29,7 +29,9 @@ class RegisterRequest extends FormRequest
             ],
             'number_phone' => [
                 'required',
-                'regex:/^(06|07|05)\d{8}$/'
+                'regex:/^\+?\d{8,15}$/',
+
+
             ],
 
 
@@ -54,8 +56,8 @@ class RegisterRequest extends FormRequest
             'email.required' => 'L\'adresse email est obligatoire.',
             'email.email' => 'L\'adresse email est invalide.',
             'email.unique' => 'Cette adresse email est déjà utilisée.',
-            'number_phone.required' => 'Le numéro de téléphone est obligatoire.',
-            'number_phone.regex' => 'Format de numéro invalide (ex: 06XXXXXXXX).',
+        'number_phone.required' => 'Le numéro de téléphone est obligatoire.',
+        'number_phone.regex' => 'Format de numéro invalide. Exemple: +212612345678 ou 0612345678',
             'password.required' => 'Le mot de passe est obligatoire.',
             'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
             'password.regex' => 'Le mot de passe doit contenir une majuscule, une minuscule, un chiffre et un symbole.',
