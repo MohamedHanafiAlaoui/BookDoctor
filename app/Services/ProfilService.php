@@ -57,8 +57,8 @@ class ProfilService
         'license_number' => $request->license_number,
         'specialite_id'  => $request->specialite_id,
         'adresse'        => $request->adresse,
-        'ville'          => $request->ville,
-        'code_postal'    => $request->code_postal,
+        'years_of_experience'    => $request->years_of_experience,
+        'description'    => $request->description,
     ]);
 }
 

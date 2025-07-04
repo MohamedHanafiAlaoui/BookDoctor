@@ -14,10 +14,17 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('patient_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('medecin_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('calendrier_id')->nullable()->constrained('calendriers')->onDelete('set null');
+
             $table->date('date_rendez_vous');
             $table->time('heure');
+
             $table->string('motif')->nullable();
+
             $table->enum('statut', ['en attente', 'confirmé', 'annulé'])->default('en attente');
+
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+
             $table->timestamps();
         });
     }

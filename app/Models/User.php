@@ -29,7 +29,6 @@ class User extends Authenticatable
         'statut' => 'string',
     ];
 
-    // === العلاقات ===
 
     public function role()
     {

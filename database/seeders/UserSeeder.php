@@ -19,14 +19,14 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password123'),
                 'id_role' => 1,
             ],
-            [
-                'full_name' => 'Dr. Ahmed',
-                'email' => 'medecin@example.com',
-                'number_phone' => '0611111111',
-                'statut' => 'active',
-                'password' => Hash::make('password123'),
-                'id_role' => 2,
-            ],
+            // [
+            //     'full_name' => 'Dr. Ahmed',
+            //     'email' => 'medecin@example.com',
+            //     'number_phone' => '0611111111',
+            //     'statut' => 'active',
+            //     'password' => Hash::make('password123'),
+            //     'id_role' => 2,
+            // ],
             [
                 'full_name' => 'Patient Test',
                 'email' => 'patient@example.com',

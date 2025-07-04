@@ -33,21 +33,23 @@ class MedecinController extends Controller
     }
     public function update(Request $request)
 {
-    $request->validate([
-        'full_name'       => 'required|string|max:255',
-        'email'           => 'required|email',
-        'number_phone'    => 'required|string|max:20',
-        'license_number'  => 'nullable|string|max:50',
-        'specialite_id'   => 'nullable|exists:specialite,id',
-        'adresse'         => 'nullable|string|max:255',
-        'ville'           => 'nullable|string|max:100',
-        'code_postal'     => 'nullable|string|max:10',
-    ]);
+    // dd($request);
+ $request->validate([
+    'full_name'            => 'required|string|max:255',
+    'email'                => 'required|email|max:255',
+    'number_phone'         => 'required|string|max:20',
+    'license_number'       => 'required|string|max:50',
+    'specialite_id'        => 'required|exists:specialite,id',
+    'adresse'              => 'required|string|max:255',
+    'years_of_experience'  => 'required|integer|min:0|max:60',
+    'description'          => 'nullable|string|max:2000', // optionnel
+]);
+
 
     $this->profilService->updateProfileMedecin($request);
 
     return redirect()->route('medecin.profil.index')
-        ->with('success', 'تم تحديث الملف الشخصي للطبيب بنجاح');
+        ->with('success', 'Profil mis à jour avec succès');
 }
 
 

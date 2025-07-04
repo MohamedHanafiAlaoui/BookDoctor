@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,20 +17,34 @@
             cursor: pointer;
             color: #6b7280;
         }
+
         .phone-error {
             animation: shake 0.5s;
             border-color: #ef4444 !important;
         }
+
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
         }
+
         .remember-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
+
         .social-login-btn {
             display: flex;
             align-items: center;
@@ -38,19 +53,23 @@
             border-radius: 8px;
             transition: all 0.3s ease;
         }
+
         .social-login-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         .google-btn {
             background-color: #fff;
             border: 1px solid #e0e0e0;
             color: #5f6368;
         }
+
         .facebook-btn {
             background-color: #3b5998;
             color: white;
         }
+
         .separator {
             display: flex;
             align-items: center;
@@ -58,22 +77,27 @@
             color: #6b7280;
             margin: 20px 0;
         }
+
         .separator::before,
         .separator::after {
             content: '';
             flex: 1;
             border-bottom: 1px solid #e5e7eb;
         }
+
         .separator::before {
             margin-right: .75em;
         }
+
         .separator::after {
             margin-left: .75em;
         }
+
         .floating-label-group {
             position: relative;
             margin-bottom: 20px;
         }
+
         .floating-label {
             position: absolute;
             top: 16px;
@@ -83,8 +107,9 @@
             transition: all 0.2s ease;
             pointer-events: none;
         }
-        .form-input:focus ~ .floating-label,
-        .form-input:not(:placeholder-shown) ~ .floating-label {
+
+        .form-input:focus~.floating-label,
+        .form-input:not(:placeholder-shown)~.floating-label {
             top: -10px;
             left: 10px;
             font-size: 12px;
@@ -92,15 +117,26 @@
             padding: 0 5px;
             color: #3b82f6;
         }
+
         .form-input:focus {
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
+
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
+
         .pulse-animation {
             animation: pulse 2s infinite;
         }
@@ -117,7 +153,7 @@
                         <i class="fas fa-lock mr-1"></i>Sécurisé
                     </span>
                 </div>
-                
+
                 <div class="inline-block bg-white/20 backdrop-blur-sm p-3 rounded-full mb-4">
                     <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center pulse-animation">
                         <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,10 +167,18 @@
                 <p class="mt-1 text-blue-100/80">Accédez à votre espace personnel</p>
             </div>
 
+
+
             <!-- Formulaire de connexion -->
-            <form class="space-y-5 p-6 md:p-8" onsubmit="handleLogin(event)" action="{{ route('login') }}" method="POST">
+            <form class="space-y-5 p-6 md:p-8" onsubmit="handleLogin(event)" action="{{ route('login') }}"
+                method="POST">
                 @csrf
 
+                @if (session('success'))
+                    <div class="bg-green-100 border border-green-200 text-green-800 px-4 py-3 rounded relative mb-4">
+                        {{ session('success') }}
+                    </div>
+                @endif
                 @if($errors->any())
                     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
                         <strong class="font-bold">Erreur !</strong>
@@ -148,10 +192,10 @@
 
                 <!-- Identifiant (email ou téléphone) -->
                 <div class="floating-label-group">
-                    <input id="login" name="login" type="text" required
+                    <input id="login" name="identifier" type="text" required
                         class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-transparent focus:outline-none transition duration-200"
                         placeholder=" ">
-                    <label for="login" class="floating-label">
+                    <label for="identifier" class="floating-label">
                         <i class="fas fa-user mr-1 text-blue-500"></i> Email ou Téléphone *
                     </label>
                 </div>
@@ -224,7 +268,7 @@
         function togglePassword(fieldId) {
             const field = document.getElementById(fieldId);
             const toggleIcon = field.nextElementSibling.querySelector('i');
-            
+
             if (field.type === 'password') {
                 field.type = 'text';
                 toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
@@ -242,21 +286,21 @@
         // Validation et soumission du formulaire
         function handleLogin(event) {
             event.preventDefault();
-            
+
             const formData = new FormData(event.target);
-            
-            const login = formData.get('login');
+
+            const login = formData.get('identifier');
             const password = formData.get('password');
-            
+
             let errors = [];
 
             // Détecter si l'identifiant est un email ou un téléphone
             const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(login);
             const isPhone = /^(0[5-79]\d{8})$/.test(cleanPhoneNumber(login));
-            
+
             if (!isEmail && !isPhone) {
                 errors.push("Format d'identifiant invalide. Utilisez un email valide ou un numéro de téléphone (05|06|07|09XXXXXXXX)");
-                
+
                 // Animation d'erreur
                 const loginInput = document.getElementById('login');
                 loginInput.classList.add('phone-error');
@@ -267,7 +311,7 @@
 
             if (!password || password.length < 6) {
                 errors.push("Le mot de passe doit contenir au moins 6 caractères");
-                
+
                 // Animation d'erreur
                 const passwordInput = document.getElementById('password');
                 passwordInput.classList.add('phone-error');
@@ -312,7 +356,7 @@
         }
 
         // Initialisation des champs avec étiquettes flottantes
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Ajouter l'animation de pulsation au logo
             const logo = document.querySelector('.pulse-animation');
             setTimeout(() => {
@@ -322,4 +366,5 @@
         });
     </script>
 </body>
+
 </html>

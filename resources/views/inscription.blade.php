@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,25 +17,40 @@
             cursor: pointer;
             color: #6b7280;
         }
+
         .radio-card {
             transition: all 0.3s ease;
         }
+
         .radio-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .radio-card.selected {
             border-color: #3b82f6;
             background-color: #eff6ff;
         }
+
         .phone-error {
             animation: shake 0.5s;
             border-color: #ef4444 !important;
         }
+
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
         }
     </style>
 </head>
@@ -58,10 +74,11 @@
             </div>
 
             <!-- Formulaire -->
-            <form class="space-y-5 p-6 md:p-8" onsubmit="handleRegister(event)" action="{{ route('register') }}" method="POST">
+            <form class="space-y-5 p-6 md:p-8" onsubmit="handleRegister(event)" action="{{ route('register') }}"
+                method="POST">
                 @csrf
 
-                 @if($errors->any())
+                @if($errors->any())
                     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
                         <strong class="font-bold">Erreur !</strong>
                         <ul class="mt-2 list-disc list-inside">
@@ -118,7 +135,8 @@
                             <div id="doctor-card"
                                 class="radio-card w-full p-4 border-2 border-gray-200 rounded-xl cursor-pointer bg-white hover:bg-gray-50 peer-checked:border-blue-500 peer-checked:bg-blue-50 transition duration-200">
                                 <div class="flex flex-col items-center">
-                                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                                    <div
+                                        class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mb-2">
                                         <i class="fas fa-user-md text-blue-600"></i>
                                     </div>
                                     <span class="text-sm font-medium text-gray-800">Docteur</span>
@@ -131,7 +149,8 @@
                             <div id="patient-card"
                                 class="radio-card w-full p-4 border-2 border-gray-200 rounded-xl cursor-pointer bg-white hover:bg-gray-50 peer-checked:border-blue-500 peer-checked:bg-blue-50 transition duration-200">
                                 <div class="flex flex-col items-center">
-                                    <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mb-2">
+                                    <div
+                                        class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mb-2">
                                         <i class="fas fa-user-injured text-green-600"></i>
                                     </div>
                                     <span class="text-sm font-medium text-gray-800">Patient</span>
@@ -155,7 +174,8 @@
                         </span>
                     </div>
                     <p class="mt-2 text-xs text-gray-500">
-                        <i class="fas fa-info-circle mr-1"></i> Doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un symbole
+                        <i class="fas fa-info-circle mr-1"></i> Doit contenir au moins 8 caractères, une majuscule, une
+                        minuscule, un chiffre et un symbole
                     </p>
                 </div>
 
@@ -168,7 +188,7 @@
                         <input id="password_confirmation" name="password_confirmation" type="password" required
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
                             placeholder="Confirmez votre mot de passe">
-                        <span class="password-toggle" onclick="togglePassword('password_confirmation')" >
+                        <span class="password-toggle" onclick="togglePassword('password_confirmation')">
                             <i class="fas fa-eye"></i>
                         </span>
                     </div>
@@ -211,7 +231,7 @@
         function togglePassword(fieldId) {
             const field = document.getElementById(fieldId);
             const toggleIcon = field.nextElementSibling.querySelector('i');
-            
+
             if (field.type === 'password') {
                 field.type = 'text';
                 toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
@@ -223,11 +243,11 @@
 
         // Animation pour les cartes de rôle
         document.querySelectorAll('.user-type-radio').forEach(radio => {
-            radio.addEventListener('change', function() {
+            radio.addEventListener('change', function () {
                 document.querySelectorAll('.radio-card').forEach(card => {
                     card.classList.remove('selected');
                 });
-                
+
                 if (this.value === '2') {
                     document.getElementById('doctor-card').classList.add('selected');
                 } else {
@@ -238,20 +258,17 @@
 
         // Fonction pour nettoyer le numéro de téléphone
         function cleanPhoneNumber(phone) {
-            // Supprimer tous les caractères non numériques
             return phone.replace(/[^\d]/g, '');
         }
 
         // Validation et soumission du formulaire
         function handleRegister(event) {
             event.preventDefault();
-            
+
             const formData = new FormData(event.target);
-            
-            // Nettoyer le numéro de téléphone
             const rawPhone = formData.get('number_phone');
             const cleanedPhone = cleanPhoneNumber(rawPhone);
-            
+
             const data = {
                 full_name: formData.get('full_name'),
                 email: formData.get('email'),
@@ -265,9 +282,12 @@
             // Regex de validation
             const nameRegex = /^[a-zA-ZÀ-ÿ\s'-]{2,50}$/;
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            const phoneRegex = /^(06|07|05)\d{8}$/; // Validation pour numéro marocain
+
+            // Nouveau regex très flexible pour numéro de téléphone international
+            const phoneRegex = /^\+?[\d\s\-()]{8,20}$/;
+
             const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-            
+
             let errors = [];
 
             // Validation des champs
@@ -279,10 +299,8 @@
                 errors.push("Adresse email invalide");
             }
 
-            if (!phoneRegex.test(data.number_phone)) {
-                errors.push("Numéro de téléphone invalide. Format attendu: 06xx xx xx xx ou 07xx xx xx xx");
-                
-                // Animation d'erreur
+            if (!phoneRegex.test(rawPhone)) {
+                errors.push("Numéro de téléphone invalide. Entrez un numéro valide au format international ou local.");
                 const phoneInput = document.getElementById('number_phone');
                 phoneInput.classList.add('phone-error');
                 setTimeout(() => {
@@ -306,7 +324,6 @@
                 errors.push("Vous devez accepter les conditions d'utilisation");
             }
 
-            // Affichage des erreurs
             if (errors.length > 0) {
                 Swal.fire({
                     icon: 'error',
@@ -317,26 +334,22 @@
                 return;
             }
 
-            // Simulation de soumission réussie
             Swal.fire({
                 icon: 'success',
                 title: 'Inscription réussie !',
                 text: `Bienvenue ${data.full_name}, votre compte a été créé avec succès.`,
                 confirmButtonColor: '#3b82f6'
             }).then(() => {
-                // En production, on soumettrait le formulaire
                 event.target.submit();
-                // document.querySelector('form').submit();
-
             });
         }
 
-        // Initialisation
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialiser la carte de rôle sélectionnée
+        document.addEventListener('DOMContentLoaded', function () {
             document.querySelector('.user-type-radio[value="2"]').checked = true;
             document.getElementById('doctor-card').classList.add('selected');
         });
     </script>
+
 </body>
+
 </html>

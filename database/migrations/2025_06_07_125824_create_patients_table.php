@@ -12,12 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('patients', function (Blueprint $table) {
-        $table->unsignedBigInteger('id_user')->primary(); // Primary key and foreign key
-        $table->text('medical_history')->nullable();
-        $table->string('image')->nullable();
-        $table->timestamps();
+            $table->unsignedBigInteger('id_user')->primary(); // Primary key and foreign key
+            $table->text('medical_history')->nullable();
 
-        $table->foreign('id_user')->references('id')->on('users')->onDelete('cascade');
+            $table->enum('groupe_sanguin', ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])->nullable();
+            $table->text('allergies')->nullable();
+            $table->string('adresse')->nullable();
+            $table->string('code_postal')->nullable();
+            $table->string('ville')->nullable();
+
+            $table->string('image')->nullable();
+            $table->timestamps();
+
+            $table->foreign('id_user')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

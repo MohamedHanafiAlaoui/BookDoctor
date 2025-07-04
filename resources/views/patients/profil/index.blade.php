@@ -1,33 +1,1070 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil Patient - BookDoctor</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Patient Dashboard - BookDoctor</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
+        /* Variables */
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #7c3aed;
+            --light: #f9fafb;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light-gray: #e5e7eb;
+            --notification: #ef4444;
+        }
+        
+        /* Base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f3f4f6;
+            color: var(--dark);
+            min-height: 100vh;
+            padding-top: 70px;
+        }
+        
+        /* Language switcher */
+        .language-switcher {
+            position: relative;
+            margin-right: 15px;
+        }
+        
+        .language-btn {
+            background: #eef2ff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            transition: all 0.3s;
+        }
+        
+        .language-btn:hover {
+            background: #e0e7ff;
+        }
+        
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 10px 0;
+            min-width: 140px;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .language-switcher:hover .language-dropdown {
+            display: block;
+        }
+        
+        .language-option {
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            text-decoration: none;
+            color: var(--dark);
+            gap: 10px;
+            transition: background 0.2s;
+        }
+        
+        .language-option:hover {
+            background: #f0f5ff;
+        }
+        
+        .flag-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        /* Header */
+        header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        
+        .logo-icon {
+            color: var(--primary);
+            font-size: 24px;
+        }
+        
+        .logo-text {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        /* Hamburger menu */
+        .hamburger-menu {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            cursor: pointer;
+            position: relative;
+            z-index: 110;
+        }
+        
+        .hamburger-menu span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background-color: var(--primary);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        nav {
+            display: flex;
+            transition: all 0.3s ease;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+        
+        nav a {
+            text-decoration: none;
+            color: var(--gray);
+            font-weight: 500;
+            position: relative;
+            padding: 25px 0;
+            transition: color 0.3s;
+        }
+        
+        nav a:hover, nav a.active {
+            color: var(--primary);
+        }
+        
+        nav a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px 3px 0 0;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        /* Notification icons */
+        .notification-container {
+            position: relative;
+            margin-right: 5px;
+        }
+        
+        .notification-btn {
+            position: relative;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        
+        .notification-btn:hover {
+            background: var(--light-gray);
+        }
+        
+        .notification-count {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: var(--notification);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .notification-icon {
+            font-size: 18px;
+            color: var(--gray);
+        }
+        
+        .notification-btn:hover .notification-icon {
+            color: var(--primary);
+        }
+        
+        .notifications-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 320px;
+            max-height: 400px;
+            overflow-y: auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 10px 0;
+            margin-top: 10px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 200;
+        }
+        
+        .notification-container:hover .notifications-dropdown,
+        .notification-container.active .notifications-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .dropdown-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .mark-all-read {
+            color: var(--primary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: background 0.2s;
+            position: relative;
+        }
+        
+        .notification-item.unread {
+            background: #f0f5ff;
+        }
+        
+        .notification-item:hover {
+            background: #f8fafc;
+        }
+        
+        .notification-icon-item {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #eef2ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-title {
+            font-weight: 500;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        
+        .notification-time {
+            color: var(--gray);
+            font-size: 12px;
+        }
+        
+        .unread-indicator {
+            position: absolute;
+            top: 20px;
+            right: 16px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--notification);
+        }
+        
+        .dropdown-footer {
+            text-align: center;
+            padding: 10px;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        .view-all {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        /* Profile dropdown */
+        .profile-container {
+            position: relative;
+        }
+        
+        .profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50px;
+            transition: background 0.3s;
+        }
+        
+        .profile-btn:hover {
+            background: var(--light-gray);
+        }
+        
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+        }
+        
+        .profile-name {
+            font-weight: 500;
+            font-size: 15px;
+            display: none;
+        }
+        
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 220px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 10px 0;
+            margin-top: 10px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 200;
+        }
+        
+        .profile-container:hover .profile-dropdown,
+        .profile-container.active .profile-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .dropdown-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .dropdown-header p {
+            font-size: 14px;
+            color: var(--gray);
+            margin-top: 3px;
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: background 0.2s;
+        }
+        
+        .dropdown-item:hover {
+            background: #f0f5ff;
+        }
+        
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            color: var(--primary);
+        }
+        
+        .dropdown-divider {
+            height: 1px;
+            background: var(--light-gray);
+            margin: 5px 0;
+        }
+        
+        /* Main content */
+        .main-container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        .dashboard-title {
+            font-size: 28px;
+            margin-bottom: 30px;
+            color: var(--dark);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: #eef2ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 20px;
+        }
+        
+        .stat-title {
+            font-size: 16px;
+            color: var(--gray);
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .stat-desc {
+            font-size: 14px;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+        
+        /* Layout */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+        
+        @media (min-width: 992px) {
+            .content-grid {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+        
+        .panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .panel-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .panel-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .appointment-list {
+            padding: 10px 0;
+        }
+        
+        .appointment-item {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid var(--light-gray);
+            transition: background 0.2s;
+        }
+        
+        .appointment-item:last-child {
+            border-bottom: none;
+        }
+        
+        .appointment-item:hover {
+            background: #f9fafb;
+        }
+        
+        .appointment-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            background: #f0f5ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .appointment-details {
+            flex: 1;
+        }
+        
+        .appointment-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+            color: var(--dark);
+        }
+        
+        .appointment-meta {
+            display: flex;
+            gap: 15px;
+            color: var(--gray);
+            font-size: 14px;
+        }
+        
+        .appointment-meta i {
+            margin-right: 5px;
+        }
+        
+        .appointment-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .status-confirmed {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .status-pending {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+        
+        /* Documents */
+        .documents-list {
+            padding: 10px 0;
+        }
+        
+        .document-item {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .document-item:last-child {
+            border-bottom: none;
+        }
+        
+        .document-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        
+        .pdf-icon {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .doc-icon {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .doc-details {
+            flex: 1;
+        }
+        
+        .doc-title {
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 3px;
+        }
+        
+        .doc-date {
+            color: var(--gray);
+            font-size: 14px;
+        }
+        
+        .doc-download {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .doc-download:hover {
+            background: #eef2ff;
+        }
+        
+        /* Footer */
+        footer {
+            background: white;
+            border-top: 1px solid var(--light-gray);
+            padding: 30px 0;
+            margin-top: 50px;
+        }
+        
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .footer-text {
+            color: var(--gray);
+            font-size: 15px;
+        }
+        
+        /* Mobile Menu Overlay */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hamburger-menu {
+                display: flex;
+            }
+            
+            nav {
+                position: fixed;
+                top: 0;
+                right: -300px;
+                width: 300px;
+                height: 100vh;
+                background: white;
+                flex-direction: column;
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+                padding: 80px 20px 20px;
+                z-index: 100;
+                transition: right 0.3s ease;
+            }
+            
+            nav.active {
+                right: 0;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            nav a {
+                padding: 15px 0;
+                display: block;
+            }
+            
+            nav a.active::after {
+                display: none;
+            }
+            
+            .profile-name {
+                display: none;
+            }
+            
+            .header-container {
+                padding: 0 15px;
+            }
+            
+            .notifications-dropdown {
+                width: 280px;
+                right: -10px;
+            }
+            
+            .notification-btn {
+                width: 36px;
+                height: 36px;
+            }
+            
+            .notification-count {
+                top: 0;
+                right: 0;
+            }
+            
+            .language-switcher {
+                margin-right: 10px;
+            }
+            
+            .language-btn {
+                padding: 6px 10px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header-actions {
+                gap: 10px;
+            }
+            
+            .logo-text {
+                font-size: 18px;
+            }
+            
+            .logo-icon {
+                font-size: 20px;
+            }
+            
+            .notifications-dropdown {
+                width: 260px;
+                max-height: 300px;
+            }
+            
+            nav {
+                width: 250px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.4s ease forwards;
+        }
+        
+        /* Pulse animation for notification */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .notification-count {
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* Hamburger animation */
+        .hamburger-menu.active span:nth-child(1) {
+            transform: translateY(9px) rotate(45deg);
+        }
+        
+        .hamburger-menu.active span:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger-menu.active span:nth-child(3) {
+            transform: translateY(-9px) rotate(-45deg);
+        }
+        
+        /* Profile Styles */
         .profile-header {
             background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            padding: 60px 0 40px;
+            color: white;
+            margin-bottom: 30px;
         }
+        
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        @media (min-width: 768px) {
+            .header-inner {
+                flex-direction: row;
+                text-align: left;
+            }
+        }
+        
+        .avatar-section {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        @media (min-width: 768px) {
+            .avatar-section {
+                margin-right: 40px;
+                margin-bottom: 0;
+            }
+        }
+        
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 4px solid rgba(255, 255, 255, 0.5);
+            object-fit: cover;
+            position: relative;
+            box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.1);
+        }
+        
+        .edit-icon {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: white;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .edit-icon:hover {
+            background: #f0f5ff;
+            transform: scale(1.1);
+        }
+        
+        .edit-icon i {
+            color: var(--primary);
+            font-size: 16px;
+        }
+        
+        .profile-info {
+            flex: 1;
+        }
+        
+        .profile-name {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .profile-contact {
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        @media (min-width: 768px) {
+            .profile-contact {
+                justify-content: flex-start;
+            }
+        }
+        
+        .profile-contact i {
+            margin-right: 5px;
+        }
+        
+        .separator {
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .separator {
+                display: inline;
+                margin: 0 15px;
+                opacity: 0.7;
+            }
+        }
+        
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        @media (min-width: 768px) {
+            .badges {
+                justify-content: flex-start;
+            }
+        }
+        
+        .badge {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .badge i {
+            margin-right: 5px;
+        }
+        
         .stat-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+        
         .stat-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
+        
         .appointment-card {
             border-left: 4px solid #4f46e5;
         }
+        
         .history-card {
             border-top: 3px solid #7c3aed;
         }
-        .avatar-upload {
-            position: relative;
-            display: inline-block;
-        }
+        
         .avatar-upload input {
             position: absolute;
             width: 100%;
@@ -37,24 +1074,13 @@
             opacity: 0;
             cursor: pointer;
         }
-        .edit-icon {
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
-            background: white;
-            border-radius: 50%;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
+        
         .tabs .tab {
             position: relative;
             padding-bottom: 8px;
             cursor: pointer;
         }
+        
         .tabs .tab.active::after {
             content: '';
             position: absolute;
@@ -65,6 +1091,7 @@
             background: #4f46e5;
             border-radius: 3px;
         }
+        
         .purchase-banner {
             background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
             border-radius: 12px;
@@ -72,28 +1099,35 @@
             box-shadow: 0 10px 25px rgba(124, 58, 237, 0.3);
             transition: transform 0.3s ease;
         }
+        
         .purchase-banner:hover {
             transform: translateY(-3px);
         }
+        
         .purchase-banner .pulse {
             animation: pulse 2s infinite;
         }
+        
         .tab-content {
             display: none;
         }
+        
         .tab-content.active {
             display: block;
             animation: fadeIn 0.5s ease;
         }
+        
         @keyframes pulse {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.7); }
             70% { transform: scale(1); box-shadow: 0 0 0 12px rgba(124, 58, 237, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(124, 58, 237, 0); }
         }
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
         /* Styles pour les notifications */
         .notification-badge {
             position: absolute;
@@ -111,6 +1145,7 @@
             font-weight: bold;
             animation: pulse-badge 1.5s infinite;
         }
+        
         .notification-panel {
             position: absolute;
             top: 100%;
@@ -124,36 +1159,44 @@
             overflow-y: auto;
             display: none;
         }
+        
         .notification-item {
             padding: 15px;
             border-bottom: 1px solid #f1f1f1;
             cursor: pointer;
             transition: background 0.2s;
         }
+        
         .notification-item:hover {
             background: #f9fafb;
         }
+        
         .notification-item.unread {
             background: #f0f9ff;
         }
+        
         .notification-time {
             font-size: 0.75rem;
             color: #6b7280;
         }
+        
         @keyframes pulse-badge {
             0% { transform: scale(1); }
             50% { transform: scale(1.1); }
             100% { transform: scale(1); }
         }
+        
         .form-group {
             margin-bottom: 1.5rem;
         }
+        
         .form-label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 500;
             color: #374151;
         }
+        
         .form-input {
             width: 100%;
             padding: 0.75rem;
@@ -162,11 +1205,13 @@
             background-color: #f9fafb;
             transition: border-color 0.2s;
         }
+        
         .form-input:focus {
             outline: none;
             border-color: #4f46e5;
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
+        
         .btn {
             padding: 0.75rem 1.5rem;
             border-radius: 0.375rem;
@@ -174,14 +1219,17 @@
             cursor: pointer;
             transition: all 0.2s;
         }
+        
         .btn-primary {
             background-color: #4f46e5;
             color: white;
             border: none;
         }
+        
         .btn-primary:hover {
             background-color: #4338ca;
         }
+        
         .health-indicator {
             height: 8px;
             border-radius: 4px;
@@ -189,10 +1237,12 @@
             background-color: #e5e7eb;
             overflow: hidden;
         }
+        
         .health-indicator-fill {
             height: 100%;
             border-radius: 4px;
         }
+        
         .security-item {
             display: flex;
             align-items: center;
@@ -202,6 +1252,7 @@
             margin-bottom: 1rem;
             background-color: white;
         }
+        
         .security-icon {
             width: 40px;
             height: 40px;
@@ -212,873 +1263,793 @@
             margin-right: 1rem;
             flex-shrink: 0;
         }
+        
         .security-details {
             flex-grow: 1;
         }
+        
         .security-status {
             font-size: 0.875rem;
             font-weight: 500;
         }
+        
+        /* Profile page specific */
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .profile-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        @media (min-width: 992px) {
+            .profile-content {
+                grid-template-columns: 1fr 2fr;
+            }
+        }
+        
+        .profile-sidebar {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .profile-main {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .personal-info {
+            margin-bottom: 30px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            color: #6b7280;
+        }
+        
+        .info-value {
+            color: #1f2937;
+            text-align: right;
+        }
+        
+        .tabs-container {
+            margin-top: 20px;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #6b7280;
+            position: relative;
+        }
+        
+        .tab.active {
+            color: #4f46e5;
+        }
+        
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #4f46e5;
+        }
+        
+        .appointment-history .appointment-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .health-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .metric-card {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #4f46e5;
+            margin: 10px 0;
+        }
+        
+        .metric-label {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .prescription-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .prescription-info {
+            flex: 1;
+        }
+        
+        .prescription-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .prescription-details {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .prescription-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 15px;
+        }
+        
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .status-completed {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        /* Language specific */
+        .lang-en { display: block; }
+        .lang-fr { display: none; }
+        
+        body.lang-fr .lang-en { display: none; }
+        body.lang-fr .lang-fr { display: block; }
     </style>
 </head>
+<body class="lang-en">
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <a href="#" class="logo">
+                <i class="fas fa-heartbeat logo-icon"></i>
+                <span class="logo-text">BookDoctor</span>
+            </a>
+            
+            <!-- Hamburger Menu -->
+            <div class="hamburger-menu" id="hamburgerMenu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <nav id="mainNav">
+                <ul>
+                    <li>
+                        <a href="#" class="active">
+                            <span class="lang-en">Home</span>
+                            <span class="lang-fr">Accueil</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <span class="lang-en">My Appointments</span>
+                            <span class="lang-fr">Mes rendez-vous</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <span class="lang-en">Medical History</span>
+                            <span class="lang-fr">Historique médical</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <span class="lang-en">Documents</span>
+                            <span class="lang-fr">Documents</span>
+                        </a>
+                    </li>
 
-<body class="bg-gray-50 min-h-screen">
-    <!-- Header de navigation -->
-    <header class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 flex items-center">
-                        <svg class="h-8 w-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                        <span class="ml-2 text-xl font-bold text-indigo-600">BookDoctor</span>
+                </ul>
+            </nav>
+            
+            <div class="header-actions">
+                <!-- Language switcher -->
+                <div class="language-switcher">
+                    <button class="language-btn" id="languageBtn">
+                        <i class="fas fa-globe"></i>
+                        <span class="lang-en">EN</span>
+                        <span class="lang-fr">FR</span>
+                    </button>
+                    <div class="language-dropdown">
+                        <a href="#" class="language-option" data-lang="en">
+                            <div class="flag-icon" style="background-color: #3c3b6e; color: white;">
+                                <i class="fas fa-flag-usa"></i>
+                            </div>
+                            <span>English</span>
+                        </a>
+                        <a href="#" class="language-option" data-lang="fr">
+                            <div class="flag-icon" style="background-color: #002654; color: white;">
+                                <i class="fas fa-flag"></i>
+                            </div>
+                            <span>Français</span>
+                        </a>
                     </div>
-                    <nav class="ml-10 flex space-x-8">
-                        <a href="/profil" class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Tableau de bord</a>
-                        <a href="/rendez-vous" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Mes rendez-vous</a>
-                        <a href="/Historique" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Historique médical</a>
-                        <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">Documents</a>
-                    </nav>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <!-- Bouton de notifications -->
-                    <div class="relative">
-                        <button id="notificationBtn" class="relative p-2 rounded-full text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            <i class="fas fa-bell text-xl"></i>
-                            <span class="notification-badge">3</span>
-                        </button>
+                
+                <!-- Notification icon -->
+                <div class="notification-container" id="notificationContainer">
+                    <button class="notification-btn" id="notificationBtn">
+                        <i class="fas fa-bell notification-icon"></i>
+                        <span class="notification-count">3</span>
+                    </button>
+                    
+                    <div class="notifications-dropdown fade-in">
+                        <div class="dropdown-header">
+                            <h3 class="lang-en">Notifications</h3>
+                            <h3 class="lang-fr">Notifications</h3>
+                            <button class="mark-all-read">
+                                <span class="lang-en">Mark all as read</span>
+                                <span class="lang-fr">Tout marquer comme lu</span>
+                            </button>
+                        </div>
                         
-                        <!-- Panneau de notifications -->
-                        <div id="notificationPanel" class="notification-panel">
-                            <div class="px-4 py-3 border-b">
-                                <h3 class="text-lg font-medium text-gray-900">Notifications</h3>
+                        <div class="notification-item unread">
+                            <div class="notification-icon-item">
+                                <i class="fas fa-calendar-check"></i>
                             </div>
-                            <div class="divide-y divide-gray-100">
-                                <div class="notification-item unread">
-                                    <div class="flex items-start">
-                                        <div class="flex-shrink-0 pt-1">
-                                            <div class="w-3 h-3 rounded-full bg-indigo-600"></div>
-                                        </div>
-                                        <div class="ml-3">
-                                            <p class="text-sm font-medium text-gray-900">Nouveau document disponible</p>
-                                            <p class="text-sm text-gray-500">Votre résultat de test sanguin est maintenant disponible</p>
-                                            <p class="notification-time">Il y a 15 minutes</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="notification-item">
-                                    <div class="flex items-start">
-                                        <div class="flex-shrink-0 pt-1">
-                                            <div class="w-3 h-3 rounded-full bg-gray-300"></div>
-                                        </div>
-                                        <div class="ml-3">
-                                            <p class="text-sm font-medium text-gray-900">Rappel de rendez-vous</p>
-                                            <p class="text-sm text-gray-500">Votre consultation avec Dr. Dupont est demain à 10:30</p>
-                                            <p class="notification-time">Il y a 2 heures</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="notification-item unread">
-                                    <div class="flex items-start">
-                                        <div class="flex-shrink-0 pt-1">
-                                            <div class="w-3 h-3 rounded-full bg-indigo-600"></div>
-                                        </div>
-                                        <div class="ml-3">
-                                            <p class="text-sm font-medium text-gray-900">Message du Dr. Lambert</p>
-                                            <p class="text-sm text-gray-500">"Votre radiographie est prête pour examen"</p>
-                                            <p class="notification-time">Il y a 1 jour</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="notification-item">
-                                    <div class="flex items-start">
-                                        <div class="flex-shrink-0 pt-1">
-                                            <div class="w-3 h-3 rounded-full bg-gray-300"></div>
-                                        </div>
-                                        <div class="ml-3">
-                                            <p class="text-sm font-medium text-gray-900">Mise à jour de votre dossier</p>
-                                            <p class="text-sm text-gray-500">Votre dossier médical a été mis à jour avec de nouvelles informations</p>
-                                            <p class="notification-time">Il y a 3 jours</p>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="notification-content">
+                                <div class="notification-title lang-en">New appointment confirmed</div>
+                                <div class="notification-title lang-fr">Rendez-vous confirmé</div>
+                                <div class="notification-time lang-en">15 minutes ago</div>
+                                <div class="notification-time lang-fr">Il y a 15 minutes</div>
                             </div>
-                            <div class="px-4 py-3 bg-gray-50 text-center">
-                                <a href="#" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
-                                    Voir toutes les notifications <i class="fas fa-arrow-right ml-1"></i>
-                                </a>
+                            <span class="unread-indicator"></span>
+                        </div>
+                        
+                        <div class="notification-item unread">
+                            <div class="notification-icon-item">
+                                <i class="fas fa-file-medical"></i>
                             </div>
+                            <div class="notification-content">
+                                <div class="notification-title lang-en">Your results are available</div>
+                                <div class="notification-title lang-fr">Vos résultats sont disponibles</div>
+                                <div class="notification-time lang-en">2 hours ago</div>
+                                <div class="notification-time lang-fr">Il y a 2 heures</div>
+                            </div>
+                            <span class="unread-indicator"></span>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-icon-item">
+                                <i class="fas fa-comment-medical"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-title lang-en">New message from your doctor</div>
+                                <div class="notification-title lang-fr">Nouveau message de votre médecin</div>
+                                <div class="notification-time lang-en">Yesterday, 2:30 PM</div>
+                                <div class="notification-time lang-fr">Hier, 14:30</div>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-item">
+                            <div class="notification-icon-item">
+                                <i class="fas fa-prescription-bottle"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-title lang-en">Reminder: Take your medication</div>
+                                <div class="notification-title lang-fr">Rappel : Prenez vos médicaments</div>
+                                <div class="notification-time lang-en">Yesterday, 9:15 AM</div>
+                                <div class="notification-time lang-fr">Hier, 09:15</div>
+                            </div>
+                        </div>
+                        
+                        <div class="dropdown-footer">
+                            <a href="#" class="view-all">
+                                <span class="lang-en">View all notifications</span>
+                                <span class="lang-fr">Voir toutes les notifications</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Profile dropdown -->
+                <div class="profile-container" id="profileContainer">
+                    <button class="profile-btn" id="profileBtn">
+                        <img src="{{ $user->patient->image}}" 
+                             alt="Profile picture" class="profile-img">
+                    </button>
+                    
+                    <div class="profile-dropdown fade-in">
+                        <div class="dropdown-header">
+                            <h3 class="lang-en">{{ $user->full_name }}</h3>
+                            <h3 class="lang-fr">Marie Dupont</h3>
+                            <p class="lang-fr">marie.dupont@example.com</p>
+                        </div>
+                        
+
+                        <a href="#" class="dropdown-item" id="editLink">
+                            <i class="fas fa-edit"></i>
+                            <span class="lang-en">Edit Profile</span>
+                            <span class="lang-fr">Modifier le profil</span>
+                        </a>
+
+                        
+                        <div class="dropdown-divider"></div>
+                        
+                        <a href="#" class="dropdown-item" id="logoutLink">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span class="lang-en">Logout</span>
+                            <span class="lang-fr">Déconnexion</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu Overlay -->
+        <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+    </header>
+
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="header-inner">
+            <div class="avatar-section">
+                <img class="profile-avatar" src="{{ $user->patient->image}}">
+                <div class="edit-icon">
+                    <i class="fas fa-pencil-alt"></i>
+                    <!-- <input type="file" id="avatar" name="avatar" accept="image/*"> -->
+                </div>
+            </div>
+            <div class="profile-info">
+                <h1 class="profile-name lang-en">{{ $user->full_name }}</h1>
+                <h1 class="profile-name lang-fr">Marie Dupont</h1>
+                <p class="profile-contact">
+                    <i class="fas fa-envelope"></i>
+                    <span class="lang-en">{{ $user->email }}</span>
+                    <span class="lang-fr">marie.dupont@example.com</span>
+                    <span class="separator">|</span>
+                    <i class="fas fa-phone"></i>
+                    <span>{{ $user->number_phone }}</span>
+                </p>
+                <div class="badges">
+                    <span class="badge"><i class="fas fa-tint"></i> <span class="lang-en">Blood Type: {{ $user->patient->groupe_sanguin}}</span><span class="lang-fr">Groupe sanguin: O+</span></span>
+                    <span class="badge"><i class="fas fa-allergies"></i> <span class="lang-en">Allergies:  {{ $user->patient->groupe_sanguin != null ?  $user->patient->groupe_sanguin : "none" }}</span><span class="lang-fr">Allergies: Aucune</span></span>
+                    <span class="badge"><i class="fas fa-birthday-cake"></i> <span class="lang-en">Date of Birth: 03/15/1985</span><span class="lang-fr">Date de naissance: 15/03/1985</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <h1 class="dashboard-title">
+            <span class="lang-en">Dashboard</span>
+            <span class="lang-fr">Tableau de bord</span>
+        </h1>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div>
+                        <div class="stat-title lang-en">Next Appointment</div>
+                        <div class="stat-title lang-fr">Prochain rendez-vous</div>
+                        <div class="stat-value lang-en">June 15, 2:30 PM</div>
+                        <div class="stat-value lang-fr">15 Juin, 14:30</div>
+                    </div>
+                </div>
+                <div class="stat-desc lang-en">Dr. Smith - Cardiologist</div>
+                <div class="stat-desc lang-fr">Dr. Smith - Cardiologue</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-prescription-bottle-alt"></i>
+                    </div>
+                    <div>
+                        <div class="stat-title lang-en">Active Prescriptions</div>
+                        <div class="stat-title lang-fr">Ordonnances actives</div>
+                        <div class="stat-value">2</div>
+                    </div>
+                </div>
+                <div class="stat-desc lang-en">Renewal in 7 days</div>
+                <div class="stat-desc lang-fr">Renouvellement dans 7 jours</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <div>
+                        <div class="stat-title lang-en">Last Checkup</div>
+                        <div class="stat-title lang-fr">Dernier examen</div>
+                        <div class="stat-value lang-en">June 10, 2023</div>
+                        <div class="stat-value lang-fr">10 Juin 2023</div>
+                    </div>
+                </div>
+                <div class="stat-desc lang-en">Blood Test - Normal results</div>
+                <div class="stat-desc lang-fr">Analyse sanguine - Résultats normaux</div>
+            </div>
+        </div>
+        
+        <div class="content-grid">
+            <div class="panel appointment-card">
+                <div class="panel-header">
+                    <h3 class="panel-title lang-en">Upcoming Appointments</h3>
+                    <h3 class="panel-title lang-fr">Rendez-vous à venir</h3>
+                    <a href="#" class="panel-link">
+                        <span class="lang-en">View All</span>
+                        <span class="lang-fr">Tout voir</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="appointment-list">
+                    <div class="appointment-item">
+                        <div class="appointment-icon">
+                            <i class="fas fa-stethoscope"></i>
+                        </div>
+                        <div class="appointment-details">
+                            <div class="appointment-title lang-en">General Consultation</div>
+                            <div class="appointment-title lang-fr">Consultation générale</div>
+                            <div class="appointment-meta">
+                                <span><i class="fas fa-user-md"></i> <span class="lang-en">Dr. John Smith</span><span class="lang-fr">Dr. Jean Martin</span></span>
+                                <span><i class="fas fa-clock"></i> <span class="lang-en">June 15, 2:30 PM</span><span class="lang-fr">15 Juin, 14:30</span></span>
+                            </div>
+                        </div>
+                        <div class="appointment-status status-confirmed lang-en">Confirmed</div>
+                        <div class="appointment-status status-confirmed lang-fr">Confirmé</div>
+                    </div>
+                    
+                    <div class="appointment-item">
+                        <div class="appointment-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <div class="appointment-details">
+                            <div class="appointment-title lang-en">Cardiac Exam</div>
+                            <div class="appointment-title lang-fr">Examen cardiaque</div>
+                            <div class="appointment-meta">
+                                <span><i class="fas fa-user-md"></i> <span class="lang-en">Dr. Marie Johnson</span><span class="lang-fr">Dr. Marie Jeanne</span></span>
+                                <span><i class="fas fa-clock"></i> <span class="lang-en">June 22, 10:00 AM</span><span class="lang-fr">22 Juin, 10:00</span></span>
+                            </div>
+                        </div>
+                        <div class="appointment-status status-pending lang-en">Pending</div>
+                        <div class="appointment-status status-pending lang-fr">En attente</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel history-card">
+                <div class="panel-header">
+                    <h3 class="panel-title lang-en">Medical Documents</h3>
+                    <h3 class="panel-title lang-fr">Documents médicaux</h3>
+                    <a href="#" class="panel-link">
+                        <span class="lang-en">View All</span>
+                        <span class="lang-fr">Tout voir</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+                <div class="documents-list">
+                    <div class="document-item">
+                        <div class="document-icon pdf-icon">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <div class="doc-details">
+                            <div class="doc-title lang-en">Blood Test Results</div>
+                            <div class="doc-title lang-fr">Résultats d'analyse sanguine</div>
+                            <div class="doc-date lang-en">June 10, 2023</div>
+                            <div class="doc-date lang-fr">10 Juin 2023</div>
+                        </div>
+                        <div class="doc-download">
+                            <i class="fas fa-download"></i>
                         </div>
                     </div>
                     
-                    <!-- Avatar utilisateur -->
-                    <div class="relative">
-                        <button class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            <img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Photo de profil">
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- En-tête du profil -->
-    <div class="profile-header py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row items-center">
-                <div class="avatar-upload relative mr-6 mb-6 md:mb-0">
-                    <img class="h-32 w-32 rounded-full border-4 border-white shadow-lg" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&q=80" alt="Photo de profil patient">
-                    <div class="edit-icon">
-                        <i class="fas fa-pencil-alt text-indigo-600 text-sm"></i>
-                    </div>
-                    <input type="file" id="avatar" name="avatar" accept="image/*">
-                </div>
-                <div class="text-center md:text-left">
-                    <h1 class="text-3xl font-bold text-white">Sophie Martin</h1>
-                    <p class="mt-2 text-indigo-100">
-                        <i class="fas fa-envelope mr-2"></i>sophie.martin@example.com
-                        <span class="mx-3">|</span>
-                        <i class="fas fa-phone mr-2"></i>06 12 34 56 78
-                    </p>
-                    <div class="mt-4 flex flex-wrap justify-center md:justify-start gap-3">
-                        <span class="px-3 py-1 bg-indigo-800 bg-opacity-50 text-white rounded-full text-sm">Groupe sanguin: O+</span>
-                        <span class="px-3 py-1 bg-indigo-800 bg-opacity-50 text-white rounded-full text-sm">Allergies: Aucune</span>
-                        <span class="px-3 py-1 bg-indigo-800 bg-opacity-50 text-white rounded-full text-sm">Date de naissance: 15/03/1985</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Navigation par onglets -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-        <div class="tabs flex space-x-8 border-b border-gray-200">
-            <div class="tab text-gray-900 font-medium active" data-tab="overview">
-                <span class="py-2">Aperçu</span>
-            </div>
-            <div class="tab text-gray-500 font-medium hover:text-gray-700" data-tab="personal">
-                <span class="py-2">Informations personnelles</span>
-            </div>
-            <div class="tab text-gray-500 font-medium hover:text-gray-700" data-tab="health">
-                <span class="py-2">Santé</span>
-            </div>
-            <div class="tab text-gray-500 font-medium hover:text-gray-700" data-tab="documents">
-                <span class="py-2">Documents</span>
-            </div>
-
-        </div>
-    </div>
-
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Contenu des onglets -->
-        <div id="overview-tab" class="tab-content active">
-            <!-- Statistiques rapides -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="stat-card bg-white rounded-xl shadow-sm p-6">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-lg bg-blue-100">
-                            <i class="fas fa-calendar-check text-blue-600 text-xl"></i>
+                    <div class="document-item">
+                        <div class="document-icon doc-icon">
+                            <i class="fas fa-file-medical"></i>
                         </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-medium text-gray-900">Prochain rendez-vous</h3>
-                            <p class="mt-1 text-2xl font-semibold text-gray-900">15 Juin 2023</p>
-                            <p class="text-gray-500">Dr. Dupont - Cardiologie</p>
+                        <div class="doc-details">
+                            <div class="doc-title lang-en">Medical Prescription</div>
+                            <div class="doc-title lang-fr">Ordonnance médicale</div>
+                            <div class="doc-date lang-en">June 5, 2023</div>
+                            <div class="doc-date lang-fr">5 Juin 2023</div>
                         </div>
-                    </div>
-                </div>
-                <div class="stat-card bg-white rounded-xl shadow-sm p-6">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-lg bg-green-100">
-                            <i class="fas fa-file-medical text-green-600 text-xl"></i>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-medium text-gray-900">Documents médicaux</h3>
-                            <p class="mt-1 text-2xl font-semibold text-gray-900">12</p>
-                            <p class="text-gray-500">5 nouveaux depuis la dernière visite</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="stat-card bg-white rounded-xl shadow-sm p-6">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-lg bg-purple-100">
-                            <i class="fas fa-heartbeat text-purple-600 text-xl"></i>
-                        </div>
-                        <div class="ml-4">
-                            <h3 class="text-lg font-medium text-gray-900">Dernier examen</h3>
-                            <p class="mt-1 text-2xl font-semibold text-gray-900">Analyse sanguine</p>
-                            <p class="text-gray-500">10 Mai 2023 - Résultats normaux</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Grille principale -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Colonne de gauche -->
-                <div class="lg:col-span-2 space-y-8">
-                    <!-- Prochains rendez-vous -->
-                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-200">
-                            <h2 class="text-lg font-medium text-gray-900">Prochains rendez-vous</h2>
-                        </div>
-                        <ul class="divide-y divide-gray-200">
-                            <li class="appointment-card px-6 py-4 hover:bg-gray-50">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 bg-indigo-100 rounded-lg p-3">
-                                        <i class="fas fa-stethoscope text-indigo-600 text-xl"></i>
-                                    </div>
-                                    <div class="ml-4 flex-1">
-                                        <div class="flex items-center justify-between">
-                                            <h3 class="text-md font-medium text-gray-900">Consultation de suivi</h3>
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                Confirmé
-                                            </span>
-                                        </div>
-                                        <p class="mt-1 text-sm text-gray-500">
-                                            <i class="far fa-calendar mr-2"></i>Jeu. 15 Juin 2023 - 10:30
-                                        </p>
-                                        <p class="text-sm text-gray-500">
-                                            <i class="fas fa-user-md mr-2"></i>Dr. Dupont - Cabinet de Cardiologie
-                                        </p>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="appointment-card px-6 py-4 hover:bg-gray-50">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 bg-indigo-100 rounded-lg p-3">
-                                        <i class="fas fa-vial text-indigo-600 text-xl"></i>
-                                    </div>
-                                    <div class="ml-4 flex-1">
-                                        <div class="flex items-center justify-between">
-                                            <h3 class="text-md font-medium text-gray-900">Prise de sang</h3>
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                En attente
-                                            </span>
-                                        </div>
-                                        <p class="mt-1 text-sm text-gray-500">
-                                            <i class="far fa-calendar mr-2"></i>Lun. 19 Juin 2023 - 08:15
-                                        </p>
-                                        <p class="text-sm text-gray-500">
-                                            <i class="fas fa-clinic-medical mr-2"></i>Laboratoire Médical Central
-                                        </p>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="appointment-card px-6 py-4 hover:bg-gray-50">
-                                <div class="flex items-center">
-                                    <div class="flex-shrink-0 bg-indigo-100 rounded-lg p-3">
-                                        <i class="fas fa-tooth text-indigo-600 text-xl"></i>
-                                    </div>
-                                    <div class="ml-4 flex-1">
-                                        <div class="flex items-center justify-between">
-                                            <h3 class="text-md font-medium text-gray-900">Contrôle dentaire</h3>
-                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                Confirmé
-                                            </span>
-                                        </div>
-                                        <p class="mt-1 text-sm text-gray-500">
-                                            <i class="far fa-calendar mr-2"></i>Ven. 30 Juin 2023 - 14:00
-                                        </p>
-                                        <p class="text-sm text-gray-500">
-                                            <i class="fas fa-user-md mr-2"></i>Dr. Lambert - Cabinet Dentaire
-                                        </p>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                        <div class="px-6 py-4 bg-gray-50 text-center">
-                            <a href="#" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
-                                Voir tous les rendez-vous <i class="fas fa-arrow-right ml-1"></i>
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Notification d'achat de document -->
-                    <div class="purchase-banner">
-                        <div class="flex flex-col md:flex-row items-center justify-between p-6">
-                            <div class="flex items-center mb-4 md:mb-0">
-                                <div class="pulse flex-shrink-0 mr-4 bg-white bg-opacity-20 rounded-full p-4">
-                                    <i class="fas fa-file-medical text-white text-3xl"></i>
-                                </div>
-                                <div>
-                                    <h3 class="text-xl font-bold text-white">Accédez à votre historique médical complet</h3>
-                                    <p class="mt-1 text-indigo-100 max-w-lg">
-                                        Pour consulter ou télécharger l'intégralité de votre dossier médical, achetez l'accès à votre historique complet.
-                                    </p>
-                                </div>
-                            </div>
-                            <button id="purchaseBtn" class="px-6 py-3 bg-white text-indigo-600 font-semibold rounded-lg shadow-md hover:bg-indigo-50 transition-colors duration-300 flex items-center">
-                                <i class="fas fa-shopping-cart mr-2"></i> Acheter maintenant (19,99€)
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Colonne de droite -->
-                <div class="space-y-8">
-                    <!-- Informations santé -->
-                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-200">
-                            <h2 class="text-lg font-medium text-gray-900">Informations santé</h2>
-                        </div>
-                        <div class="p-6">
-                            <div class="mb-6">
-                                <h3 class="text-sm font-medium text-gray-500 mb-2">Allergies</h3>
-                                <div class="flex flex-wrap gap-2">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                        Aucune allergie connue
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="mb-6">
-                                <h3 class="text-sm font-medium text-gray-500 mb-2">Conditions médicales</h3>
-                                <div class="flex flex-wrap gap-2">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        Hypertension artérielle
-                                    </span>
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        Diabète type 2
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div class="mb-6">
-                                <h3 class="text-sm font-medium text-gray-500 mb-2">Médicaments actuels</h3>
-                                <ul class="mt-2 space-y-2">
-                                    <li class="flex items-start">
-                                        <div class="flex-shrink-0 mt-0.5">
-                                            <div class="w-3 h-3 rounded-full bg-indigo-600"></div>
-                                        </div>
-                                        <p class="ml-3 text-sm text-gray-700">Lisinopril 10mg - 1 comprimé par jour</p>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <div class="flex-shrink-0 mt-0.5">
-                                            <div class="w-3 h-3 rounded-full bg-indigo-600"></div>
-                                        </div>
-                                        <p class="ml-3 text-sm text-gray-700">Metformine 500mg - 2 comprimés par jour</p>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <div class="flex-shrink-0 mt-0.5">
-                                            <div class="w-3 h-3 rounded-full bg-indigo-600"></div>
-                                        </div>
-                                        <p class="ml-3 text-sm text-gray-700">Atorvastatine 20mg - 1 comprimé le soir</p>
-                                    </li>
-                                </ul>
-                            </div>
-
-                            <div>
-                                <h3 class="text-sm font-medium text-gray-500 mb-2">Personne à contacter</h3>
-                                <div class="mt-2">
-                                    <p class="text-sm font-medium text-gray-900">Pierre Martin</p>
-                                    <p class="text-sm text-gray-500">Conjoint</p>
-                                    <p class="text-sm text-gray-700 mt-1">
-                                        <i class="fas fa-phone mr-2"></i>06 98 76 54 32
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="px-6 py-4 bg-gray-50">
-                            <button class="w-full text-indigo-600 hover:text-indigo-900 text-sm font-medium flex items-center justify-center">
-                                <i class="fas fa-edit mr-2"></i> Mettre à jour les informations santé
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Documents récents -->
-                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                        <div class="px-6 py-4 border-b border-gray-200">
-                            <h2 class="text-lg font-medium text-gray-900">Documents récents</h2>
-                        </div>
-                        <div class="p-6">
-                            <ul class="space-y-4">
-                                <li class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="p-2 rounded-lg bg-indigo-100">
-                                            <i class="fas fa-file-pdf text-red-600"></i>
-                                        </div>
-                                        <div class="ml-4">
-                                            <h3 class="text-sm font-medium text-gray-900">Résultats analyse sanguine</h3>
-                                            <p class="text-xs text-gray-500">Ajouté le 12/05/2023</p>
-                                        </div>
-                                    </div>
-                                    <button class="text-indigo-600 hover:text-indigo-900">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </li>
-                                <li class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="p-2 rounded-lg bg-indigo-100">
-                                            <i class="fas fa-file-medical text-green-600"></i>
-                                        </div>
-                                        <div class="ml-4">
-                                            <h3 class="text-sm font-medium text-gray-900">Ordonnance médicale</h3>
-                                            <p class="text-xs text-gray-500">Ajouté le 10/05/2023</p>
-                                        </div>
-                                    </div>
-                                    <button class="text-indigo-600 hover:text-indigo-900">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </li>
-                                <li class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="p-2 rounded-lg bg-indigo-100">
-                                            <i class="fas fa-file-invoice text-blue-600"></i>
-                                        </div>
-                                        <div class="ml-4">
-                                            <h3 class="text-sm font-medium text-gray-900">Compte rendu consultation</h3>
-                                            <p class="text-xs text-gray-500">Ajouté le 10/05/2023</p>
-                                        </div>
-                                    </div>
-                                    <button class="text-indigo-600 hover:text-indigo-900">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </li>
-                                <li class="flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <div class="p-2 rounded-lg bg-indigo-100">
-                                            <i class="fas fa-x-ray text-yellow-600"></i>
-                                        </div>
-                                        <div class="ml-4">
-                                            <h3 class="text-sm font-medium text-gray-900">Radiographie thoracique</h3>
-                                            <p class="text-xs text-gray-500">Ajouté le 02/04/2023</p>
-                                        </div>
-                                    </div>
-                                    <button class="text-indigo-600 hover:text-indigo-900">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="px-6 py-4 bg-gray-50 text-center">
-                            <a href="#" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">
-                                Voir tous les documents <i class="fas fa-arrow-right ml-1"></i>
-                            </a>
+                        <div class="doc-download">
+                            <i class="fas fa-download"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Onglet Informations personnelles -->
-        <div id="personal-tab" class="tab-content">
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-200">
-                    <h2 class="text-lg font-medium text-gray-900">Informations personnelles</h2>
-                </div>
-                <div class="p-6">
-                    <form>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="form-group">
-                                <label class="form-label">Nom</label>
-                                <input type="text" class="form-input" value="Martin">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Prénom</label>
-                                <input type="text" class="form-input" value="Sophie">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Date de naissance</label>
-                                <input type="date" class="form-input" value="1985-03-15">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Genre</label>
-                                <select class="form-input">
-                                    <option>Femme</option>
-                                    <option>Homme</option>
-                                    <option>Autre</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Adresse email</label>
-                                <input type="email" class="form-input" value="sophie.martin@example.com">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Téléphone</label>
-                                <input type="tel" class="form-input" value="0612345678">
-                            </div>
-                            <div class="form-group md:col-span-2">
-                                <label class="form-label">Adresse</label>
-                                <input type="text" class="form-input" value="12 Rue de la Paix">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Code postal</label>
-                                <input type="text" class="form-input" value="75001">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Ville</label>
-                                <input type="text" class="form-input" value="Paris">
-                            </div>
-                        </div>
-                        <div class="mt-8 flex justify-end">
-                            <button type="button" class="btn btn-primary">
-                                <i class="fas fa-save mr-2"></i> Enregistrer les modifications
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Onglet Santé -->
-        <div id="health-tab" class="tab-content">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <h2 class="text-lg font-medium text-gray-900">Informations médicales</h2>
-                    </div>
-                    <div class="p-6">
-                        <div class="mb-6">
-                            <h3 class="text-sm font-medium text-gray-500 mb-2">Allergies</h3>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    Aucune allergie connue
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="mb-6">
-                            <h3 class="text-sm font-medium text-gray-500 mb-2">Conditions médicales</h3>
-                            <div class="flex flex-wrap gap-2">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    Hypertension artérielle
-                                </span>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    Diabète type 2
-                                </span>
-                            </div>
-                        </div>
-
-                        <div class="mb-6">
-                            <h3 class="text-sm font-medium text-gray-500 mb-2">Médicaments actuels</h3>
-                            <ul class="mt-2 space-y-2">
-                                <li class="flex items-start">
-                                    <div class="flex-shrink-0 mt-0.5">
-                                        <div class="w-3 h-3 rounded-full bg-indigo-600"></div>
-                                    </div>
-                                    <p class="ml-3 text-sm text-gray-700">Lisinopril 10mg - 1 comprimé par jour</p>
-                                </li>
-                                <li class="flex items-start">
-                                    <div class="flex-shrink-0 mt-0.5">
-                                        <div class="w-3 h-3 rounded-full bg-indigo-600"></div>
-                                    </div>
-                                    <p class="ml-3 text-sm text-gray-700">Metformine 500mg - 2 comprimés par jour</p>
-                                </li>
-                                <li class="flex items-start">
-                                    <div class="flex-shrink-0 mt-0.5">
-                                        <div class="w-3 h-3 rounded-full bg-indigo-600"></div>
-                                    </div>
-                                    <p class="ml-3 text-sm text-gray-700">Atorvastatine 20mg - 1 comprimé le soir</p>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <h3 class="text-sm font-medium text-gray-500 mb-2">Personne à contacter</h3>
-                            <div class="mt-2">
-                                <p class="text-sm font-medium text-gray-900">Pierre Martin</p>
-                                <p class="text-sm text-gray-500">Conjoint</p>
-                                <p class="text-sm text-gray-700 mt-1">
-                                    <i class="fas fa-phone mr-2"></i>06 98 76 54 32
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
-        </div>
-
-        <!-- Onglet Documents -->
-        <div id="documents-tab" class="tab-content">
-            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-200">
-                    <div class="flex justify-between items-center">
-                        <h2 class="text-lg font-medium text-gray-900">Documents médicaux</h2>
-       
-                    </div>
-                </div>
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="relative w-64">
-                            <input type="text" placeholder="Rechercher un document..." class="form-input pl-10">
-                            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                        </div>
-                        <div>
-                            <select class="form-input">
-                                <option>Tous les types</option>
-                                <option>Ordonnances</option>
-                                <option>Analyses</option>
-                                <option>Comptes rendus</option>
-                                <option>Imagerie</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead>
-                                <tr>
-                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Document</th>
-                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                    <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Médecin</th>
-                                    <th class="px-6 py-3 bg-gray-50"></th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <i class="fas fa-file-pdf text-red-600 text-xl mr-3"></i>
-                                            <div>
-                                                <div class="text-sm font-medium text-gray-900">Résultats analyse sanguine</div>
-                                                <div class="text-sm text-gray-500">1.2 MB</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Analyse</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">12/05/2023</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Dr. Dupont</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-                                        <button class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                            <i class="fas fa-download"></i>
-                                        </button>
-
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <i class="fas fa-file-medical text-green-600 text-xl mr-3"></i>
-                                            <div>
-                                                <div class="text-sm font-medium text-gray-900">Ordonnance médicale</div>
-                                                <div class="text-sm text-gray-500">0.8 MB</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Ordonnance</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">10/05/2023</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Dr. Lambert</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-                                        <button class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                            <i class="fas fa-download"></i>
-                                        </button>
-                                        <button class="text-gray-500 hover:text-gray-700">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <i class="fas fa-file-invoice text-blue-600 text-xl mr-3"></i>
-                                            <div>
-                                                <div class="text-sm font-medium text-gray-900">Compte rendu consultation</div>
-                                                <div class="text-sm text-gray-500">1.5 MB</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Compte rendu</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">10/05/2023</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Dr. Dupont</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-                                        <button class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                            <i class="fas fa-download"></i>
-                                        </button>
-                                        <button class="text-gray-500 hover:text-gray-700">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <i class="fas fa-x-ray text-yellow-600 text-xl mr-3"></i>
-                                            <div>
-                                                <div class="text-sm font-medium text-gray-900">Radiographie thoracique</div>
-                                                <div class="text-sm text-gray-500">5.7 MB</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Imagerie</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">02/04/2023</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Dr. Lambert</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-                                        <button class="text-indigo-600 hover:text-indigo-900 mr-3">
-                                            <i class="fas fa-download"></i>
-                                        </button>
-                                        <button class="text-gray-500 hover:text-gray-700">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Onglet Sécurité -->
-
     </main>
 
-    <footer class="bg-white border-t mt-12">
-        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-            <div class="md:flex md:items-center md:justify-between">
-                <div class="flex justify-center md:justify-start">
-                    <div class="flex items-center">
-                        <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                        <span class="ml-2 text-lg font-bold text-indigo-600">BookDoctor</span>
-                    </div>
-                </div>
-                <div class="mt-8 md:mt-0 md:order-1">
-                    <p class="text-center text-sm text-gray-500">
-                        &copy; 2023 BookDoctor. Tous droits réservés.
-                    </p>
-                </div>
-            </div>
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <a href="#" class="footer-logo">
+                <i class="fas fa-heartbeat"></i>
+                <span class="logo-text">BookDoctor</span>
+            </a>
+            <p class="footer-text">
+                <span class="lang-en">&copy; 2023 BookDoctor. All rights reserved.</span>
+                <span class="lang-fr">&copy; 2023 BookDoctor. Tous droits réservés.</span>
+            </p>
         </div>
     </footer>
 
     <script>
-        // Gestion des onglets
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                const tabName = this.getAttribute('data-tab');
+        // Language switching functionality
+        const languageOptions = document.querySelectorAll('.language-option');
+        const languageBtn = document.getElementById('languageBtn');
+        
+        languageOptions.forEach(option => {
+            option.addEventListener('click', function(e) {
+                e.preventDefault();
+                const lang = this.getAttribute('data-lang');
+                document.body.className = `lang-${lang}`;
                 
-                // Mise à jour des onglets
-                document.querySelectorAll('.tab').forEach(t => {
-                    t.classList.remove('active', 'text-gray-900');
-                    t.classList.add('text-gray-500', 'hover:text-gray-700');
-                });
+                // Update button text
+                const langText = lang === 'en' ? 'EN' : 'FR';
+                languageBtn.querySelector('.lang-en, .lang-fr').textContent = langText;
                 
-                this.classList.add('active', 'text-gray-900');
-                this.classList.remove('text-gray-500', 'hover:text-gray-700');
-                
-                // Affichage du contenu de l'onglet
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.remove('active');
-                });
-                document.getElementById(`${tabName}-tab`).classList.add('active');
+                // Close all dropdowns
+                document.querySelector('.language-dropdown').style.display = 'none';
+                profileContainer.classList.remove('active');
+                notificationContainer.classList.remove('active');
             });
         });
+        
+        // Mobile menu functionality
+        const hamburgerMenu = document.getElementById('hamburgerMenu');
+        const mainNav = document.getElementById('mainNav');
+        const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+        
+        hamburgerMenu.addEventListener('click', function() {
+            this.classList.toggle('active');
+            mainNav.classList.toggle('active');
+            mobileMenuOverlay.classList.toggle('active');
+            
+            // Close other dropdowns
+            profileContainer.classList.remove('active');
+            notificationContainer.classList.remove('active');
+        });
+        
+        mobileMenuOverlay.addEventListener('click', function() {
+            hamburgerMenu.classList.remove('active');
+            mainNav.classList.remove('active');
+            this.classList.remove('active');
+        });
+        
+        // Close mobile menu when clicking on nav links
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', function() {
+                hamburgerMenu.classList.remove('active');
+                mainNav.classList.remove('active');
+                mobileMenuOverlay.classList.remove('active');
+            });
+        });
+        
+        // Profile dropdown management
+        const profileContainer = document.getElementById('profileContainer');
+        const profileBtn = document.getElementById('profileBtn');
+        
+        // Notification elements
+        const notificationContainer = document.getElementById('notificationContainer');
+        const notificationBtn = document.getElementById('notificationBtn');
+        const markAllReadBtn = document.querySelector('.mark-all-read');
+        const notificationItems = document.querySelectorAll('.notification-item');
+        const notificationCount = document.querySelector('.notification-count');
+        
+        // Open menu on mobile click
+        profileBtn.addEventListener('click', function(e) {
+            // Close other dropdowns
+            notificationContainer.classList.remove('active');
+            
+            // Toggle profile dropdown
+            profileContainer.classList.toggle('active');
+            e.stopPropagation();
+        });
+        
+        // Open notifications menu on click
+        notificationBtn.addEventListener('click', function(e) {
+            // Close other dropdowns
+            profileContainer.classList.remove('active');
+            
+            // Toggle notifications dropdown
+            notificationContainer.classList.toggle('active');
+            e.stopPropagation();
+        });
+        
+        // Close menus when clicking elsewhere
+        document.addEventListener('click', function(e) {
+            if (!profileContainer.contains(e.target)) {
+                profileContainer.classList.remove('active');
+            }
+            if (!notificationContainer.contains(e.target)) {
+                notificationContainer.classList.remove('active');
+            }
+        });
+        
+        // Mark all notifications as read
+        markAllReadBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            notificationItems.forEach(item => {
+                item.classList.remove('unread');
+            });
+            document.querySelectorAll('.unread-indicator').forEach(indicator => {
+                indicator.style.display = 'none';
+            });
+            notificationCount.textContent = '0';
+            notificationCount.style.display = 'none';
+            
+            Swal.fire({
+                title: document.body.classList.contains('lang-en') ? 
+                    'Notifications marked as read' : 'Notifications marquées comme lues',
+                icon: 'success',
+                confirmButtonColor: '#4f46e5'
+            });
+        });
+        
+        // Mark individual notification as read
+        notificationItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                if(this.classList.contains('unread')) {
+                    this.classList.remove('unread');
+                    const indicator = this.querySelector('.unread-indicator');
+                    if(indicator) indicator.style.display = 'none';
+                    
+                    // Update notification count
+                    const currentCount = parseInt(notificationCount.textContent);
+                    if(currentCount > 0) {
+                        notificationCount.textContent = currentCount - 1;
+                    }
+                    
+                    if(notificationCount.textContent === '0') {
+                        notificationCount.style.display = 'none';
+                    }
+                }
+            });
+        });
+        
+        // Menu action management
 
-        // Simulation de téléchargement
-        document.querySelectorAll('[class*="fa-download"]').forEach(icon => {
+        
+        document.getElementById('editLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: document.body.classList.contains('lang-en') ? 
+                    'Edit Profile' : 'Modifier le profil',
+                text: document.body.classList.contains('lang-en') ? 
+                    'Editing profile information' : 'Édition des informations du profil',
+                icon: 'info',
+                confirmButtonColor: '#4f46e5'
+            });
+            profileContainer.classList.remove('active');
+        });
+        
+        document.getElementById('settingsLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: document.body.classList.contains('lang-en') ? 
+                    'Settings' : 'Paramètres',
+                text: document.body.classList.contains('lang-en') ? 
+                    'Modifying account settings' : 'Modification des paramètres du compte',
+                icon: 'info',
+                confirmButtonColor: '#4f46e5'
+            });
+            profileContainer.classList.remove('active');
+        });
+        
+        document.getElementById('logoutLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: document.body.classList.contains('lang-en') ? 
+                    'Logout' : 'Déconnexion',
+                text: document.body.classList.contains('lang-en') ? 
+                    'You have been successfully logged out' : 'Vous avez été déconnecté avec succès',
+                icon: 'success',
+                confirmButtonColor: '#4f46e5'
+            }).then(() => {
+                // Redirect to login page
+                window.location.href = '/login';
+            });
+            profileContainer.classList.remove('active');
+        });
+        
+        // Simulate document download
+        document.querySelectorAll('.doc-download').forEach(icon => {
             icon.addEventListener('click', function() {
                 Swal.fire({
                     icon: 'info',
-                    title: 'Téléchargement',
-                    text: 'Cette fonctionnalité sera disponible dans la version complète',
+                    title: document.body.classList.contains('lang-en') ? 
+                        'Download' : 'Téléchargement',
+                    text: document.body.classList.contains('lang-en') ? 
+                        'This feature will be available in the full version' : 
+                        'Cette fonctionnalité sera disponible dans la version complète',
                     confirmButtonColor: '#4f46e5'
                 });
             });
         });
-
-        // Animation au survol des cartes de statistiques
-        document.querySelectorAll('.stat-card').forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.1)';
-            });
-            
-            card.addEventListener('mouseleave', function() {
-                this.style.boxShadow = '';
-            });
-        });
         
-        // Gestion de l'achat du document
-        document.getElementById('purchaseBtn').addEventListener('click', function() {
-            Swal.fire({
-                title: 'Achat de votre historique médical',
-                html: `
-                    <div class="text-left">
-                        <p class="mb-4">Vous êtes sur le point d'acheter l'accès complet à votre historique médical pour <span class="font-bold">19,99€</span>.</p>
-                        <div class="bg-indigo-50 p-4 rounded-lg mb-4">
-                            <p class="font-semibold">Ce document comprend:</p>
-                            <ul class="list-disc pl-5 mt-2">
-                                <li>Votre historique médical complet</li>
-                                <li>Tous les comptes rendus de consultation</li>
-                                <li>Vos résultats d'analyses et d'examens</li>
-                                <li>Vos prescriptions médicales</li>
-                                <li>Vos certificats médicaux</li>
-                            </ul>
-                        </div>
-                        <p>Le document sera disponible au format PDF immédiatement après le paiement.</p>
-                    </div>
-                `,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#4f46e5',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Confirmer l\'achat',
-                cancelButtonText: 'Annuler'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Simulation de chargement
+        // Show notification indicator pulse
+        setInterval(() => {
+            notificationCount.classList.toggle('pulse');
+        }, 3000);
+        
+        // Avatar upload functionality
+        document.getElementById('avatar').addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    document.querySelector('.profile-avatar').src = e.target.result;
+                    
                     Swal.fire({
-                        title: 'Traitement en cours...',
-                        html: 'Veuillez patienter pendant le traitement de votre paiement.',
-                        timer: 2000,
-                        timerProgressBar: true,
-                        didOpen: () => {
-                            Swal.showLoading()
-                        }
-                    }).then(() => {
-                        // Succès
-                        Swal.fire({
-                            title: 'Achat réussi!',
-                            text: 'Votre historique médical complet est maintenant disponible.',
-                            icon: 'success',
-                            confirmButtonColor: '#4f46e5'
-                        });
+                        title: document.body.classList.contains('lang-en') ? 
+                            'Profile picture updated' : 'Photo de profil mise à jour',
+                        text: document.body.classList.contains('lang-en') ? 
+                            'Your profile picture has been changed successfully' : 
+                            'Votre photo de profil a été modifiée avec succès',
+                        icon: 'success',
+                        confirmButtonColor: '#4f46e5'
                     });
                 }
-            });
-        });
-        
-        // Gestion des notifications
-        const notificationBtn = document.getElementById('notificationBtn');
-        const notificationPanel = document.getElementById('notificationPanel');
-        
-        // Ouvrir/fermer le panneau de notifications
-        notificationBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            notificationPanel.style.display = notificationPanel.style.display === 'block' ? 'none' : 'block';
-            
-            // Marquer toutes les notifications comme lues
-            document.querySelectorAll('.notification-item.unread').forEach(item => {
-                item.classList.remove('unread');
-                const dot = item.querySelector('.rounded-full');
-                if(dot) {
-                    dot.classList.remove('bg-indigo-600');
-                    dot.classList.add('bg-gray-300');
-                }
-            });
-            
-            // Réinitialiser le badge de notification
-            const badge = document.querySelector('.notification-badge');
-            badge.style.display = 'none';
-        });
-        
-        // Fermer le panneau quand on clique ailleurs
-        document.addEventListener('click', function(e) {
-            if (!notificationPanel.contains(e.target) && e.target !== notificationBtn) {
-                notificationPanel.style.display = 'none';
+                
+                reader.readAsDataURL(e.target.files[0]);
             }
         });
-        
-        // Fermer le panneau quand on clique sur une notification
-        document.querySelectorAll('.notification-item').forEach(item => {
-            item.addEventListener('click', function() {
-                notificationPanel.style.display = 'none';
-            });
-        });
     </script>
+
+    
 </body>
 </html>
